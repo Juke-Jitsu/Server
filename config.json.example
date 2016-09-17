@@ -1,0 +1,15 @@
+/*
+*   A new androidId will be generated everytime a new instance of PlayMusic is created.
+*   This will cause google to send you an annoyingly high amount of 'New device activated'
+*   emails. Thus, bellow are instructions to get your device Id:
+*   
+*   1. Download this app: https://play.google.com/store/apps/details?id=com.evozi.deviceid 
+*   2. Use the id given (top entry of app) as your "androidId"
+*/
+
+
+{
+    "email": "youremail@gmail.com",
+    "password": "yourpassword",
+    "androidId": "EXAMPLE16BITHEX"
+}

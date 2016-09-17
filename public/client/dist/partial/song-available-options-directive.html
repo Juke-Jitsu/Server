@@ -1,0 +1,11 @@
+<md-button class="md-raised md-primary" ng-click="addToQueue()" ng-show="!onQueue">
+    Add To Queue
+</md-button>
+
+<md-button class="md-raised" ng-click="upvote()" ng-show="onQueue" ng-class="{'md-primary': usersVote === 1}">
+    Uppercut
+</md-button>
+
+<md-button class="md-raised" ng-click="downvote()" ng-show="onQueue" ng-class="{'md-warn': usersVote === -1}">
+    Leg drop
+</md-button>

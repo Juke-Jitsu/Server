@@ -1,0 +1,17 @@
+<md-list layout="row" layout-margin layout-wrap  layout-align="center none">
+    
+    <div flex="90" layout-padding ng-show="!currentlyPlaying">
+        <h1 >Nothing is in the Queue! :(</h1>
+        <h2>"How can you have any Juking, if you can't Juke your Queue?!"</h2>
+        <img style="display:block; margin:auto;" src="../img/juke-jitsu-2.png" height="45%"/>
+    </div>
+    
+    <md-list-item style="background-color: white"  md-whiteframe="8" flex="100" ng-show="currentlyPlaying">
+        <jj-song-list-item song="currentlyPlaying"></jj-song-list-item>
+    </md-list-item>
+    
+    <md-list-item style="background-color: white" md-whiteframe="8" flex-xs="100" flex-sm="45" flex-md="45" flex-gt-md="30" ng-repeat="item in results" ng-show="!$first">
+        <jj-song-list-item song="item"></jj-song-list-item>
+    </md-list-item>
+    
+</md-list>
