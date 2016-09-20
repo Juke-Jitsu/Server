@@ -23,7 +23,7 @@
  */
 
 
-var SocketMessageType = require('./SocketMessageTypes');
+var SocketMessageType = require('juke-protocols');
 var ToClientMessages = SocketMessageType.ToClientMessages;
 var ToServerMessages = SocketMessageType.ToServerMessages;
 

@@ -11,5 +11,6 @@
 {
     "email": "youremail@gmail.com",
     "password": "yourpassword",
-    "androidId": "EXAMPLE16BITHEX"
+    "androidId": "EXAMPLE16BITHEX",
+	"client": "P:/ath/To/Client/dist"
 }
