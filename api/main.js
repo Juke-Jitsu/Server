@@ -42,77 +42,87 @@ player.on('finish', function () {
 
 var app = {
 
-    startServer : function () {
+    startServer: function () {
         www.startServer();
     },
 
 
-    search : function (searchText, cb) {
+    search: function (searchText, cb) {
         gmusic.search(searchText, cb);
     },
-    
-    clearQueue : function () {
+
+    clearQueue: function () {
         songQueue.length = [];
         player.clearPlayer();
     },
-    
-    addSongToQueue : function (song) {
+
+    addSongToQueue: function (song) {
         if (!songQueue.has(song) && song !== '{}') {
             songQueue.push(song);
         }
     },
-    
-    removeSongFromQueue : function (song) {
+
+    removeSongFromQueue: function (song) {
         var pos = songQueue.indexOf(song);
         songQueue.splice(pos, 1);
     },
-    
-    getHistory : function () {
+
+    getHistory: function () {
         return songHistory;
     },
-    
-    getSongQueue : function () {
+
+    getSongQueue: function () {
         return songQueue;
     },
-    
-    playQueue : function () {
+
+    playQueue: function () {
         player.play();
     },
-    
-    pauseQueue : function () {
+
+    pauseQueue: function () {
         player.pause();
     },
-    
-    skipQueue : function () {
+
+    skipQueue: function () {
         player.next();
     },
 
     /**
-     * Finds a song with nid matching target and increments the vote
-     * If the song is found and incrememnted it returns true.
+     * Set's the user's vote for a specific song in the queue
      * 
-     * If something goes wrong and can not find the song returns false
+     * @returns boolean True if succesfully set, else false
      */
-    upVote : function (target) {
-        for (var i = 0; i < songQueue.length; ++i) {
-            if (songQueue[i].nid === target) {
-                songQueue[i].score++;
-                songQueue.sort('score', 'descending');
-                return true;
-            }
-        }
-        return false;
-    },
+    setVote: function (vote) {
 
-    downVote : function (target) {
+        if (!vote.nid || !vote.uid || !vote.vote) {
+            console.log("Invalid vote: ", vote);
+            return false;
+        }
+
         for (var i = 0; i < songQueue.length; ++i) {
-            if (songQueue[i].nid === target) {
-                songQueue[i].score--;
+            if (songQueue[i].nid === vote.nid) {
+
+                // If this song hasn't been voted on..
+                if (!songQueue[i].votes) {
+                    songQueue[i].votes = {};
+                }
+
+                // set the users vote
+                songQueue[i].votes[vote.uid] = vote.vote;
+
+                // recalculate score
+                var score = 0;
+                for (var key in songQueue[i].votes) {
+                    score += songQueue[i].votes[key];
+                }
+
+                // Set score and sort
+                songQueue[i].score = score;
                 songQueue.sort('score', 'descending');
                 return true;
             }
         }
-        return false;
+
     }
 
 }

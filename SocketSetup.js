@@ -26,14 +26,16 @@
 var SocketMessageType = require('juke-protocols');
 var ToClientMessages = SocketMessageType.ToClientMessages;
 var ToServerMessages = SocketMessageType.ToServerMessages;
+var api = require("./api/main");
 
-
-module.exports = function (io, songQueue) {
+module.exports = function (io) {
 
     io.on('connection', function (socket) {
 
         console.log("User Connected!");
 
+        // Send what's in the queue immediately
+        socket.emit(ToClientMessages.EntireQ, api.getSongQueue());
 
         /**
          * Whenever the queue changes send the whole thing through.
@@ -43,16 +45,21 @@ module.exports = function (io, songQueue) {
          *       making sure everyone sees the same thing so this sort of thing
          *       should probably happen wayyy later down the road.
          */
-        songQueue.on('change', function () {
-            io.emit(ToClientMessages.EntireQ, songQueue);
+        api.getSongQueue().on('change', function () {
+            io.emit(ToClientMessages.EntireQ, api.getSongQueue());
         });
 
 
         socket.on(ToServerMessages.AddToQ, function (songToAdd) {
-            if (!songQueue.has(songToAdd) && songToAdd !== '{}') {
-                songQueue.push(songToAdd);
+            if (!api.getSongQueue().has(songToAdd) && songToAdd !== '{}') {
+                api.addSongToQueue(songToAdd);
             }
         });
+
+
+        socket.on(ToServerMessages.SetVote, function (vote){
+            api.setVote(vote);
+        })
   
     });
 
