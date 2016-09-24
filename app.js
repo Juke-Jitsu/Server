@@ -4,11 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var array = require('array');
 
-var gmusic = require('./api/gmusic.js');
-var Player = require('./api/player.js');
-var bufferSong = require('./api/bufferedSong.js');
 
 var config = require('./config.json');
 
@@ -16,6 +12,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var api = require("./api/main");
 
 var self = this;
 
@@ -26,69 +23,33 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(config.client)); 
 
-self.songQueue = new array();
-self.songHistory = new array();
-self.player = new Player();
-self.nowPlaying= null;
 
-
-/* "Main" */
-self.songQueue.on('change', function(){
-    console.log(self.player.bufferNewSong());
-    if(self.player.bufferNewSong() && self.songQueue.length !== 0){
-        var song = self.songQueue.last();
-        bufferSong(song.nid, function(song) {
-            if (song.length !== 0) {
-                self.player.setNext(song);
-                self.player.play();
-            }
-        });
-    }else{
-        console.log("Kaleb does not know what to do here");
-    }
-});
-
-self.player.on('finish', function(){
-    console.log("Song finished, playing next in Queue...");
-    if(self.songQueue.length !== 0){
-        self.songHistory.push(self.songQueue.shift());
-    }
-    console.log(self.songHistory);
-});
-
-
-
-require('./SocketSetup')(io, self.songQueue);
+require('./SocketSetup')(io, api.getSongQueue());
 
 /* Routes */
 app.get('/api/search', function(req, res){
-    gmusic.search(req.query.str, function(results){
+    api.search(req.query.str, function(results){
         res.json(results);
     });
 });
 
 app.post('/api/addQ', function(req, res){
-    var metaData = req.body;
-    if(!self.songQueue.has(metaData) && metaData !== '{}'){
-        self.songQueue.push(metaData);
-    }
-    res.json(self.songQueue);
+    api.addSongToQueue(req.body);
+    res.json(api.getSongQueue());
 });
 
 app.post('/api/rmQ', function(req, res){
-    var pos = self.songQueue.indexOf(req.query);
-    self.songQueue.splice(pos,1);
-    res.json(self.songQueue);
+    api.removeSongFromQueue(req.query)
+    res.json(api.getSongQueue());
 });
 
 app.get('/api/getQ', function(req, res){
-    res.json(self.songQueue);
+    res.json(api.getSongQueue());
 });
 
 //ISSUE: need to refresh queue view after clear
 app.post('/api/clearQ', function(req, res){
-    self.songQueue.length = [];
-    self.player.clearPlayer();
+    api.clearQueue();
     res.send("Queue Cleared");
 });
 
@@ -96,13 +57,11 @@ app.post('/api/upvote', function(req, res){
     var target = req.body.nid;
     if(target !== null){
         var ret = {nid: target, "status":"unchanged"};
-        for(var i = 0; i < self.songQueue.length; ++i){
-            if(self.songQueue[i].nid === target){
-                self.songQueue[i].score++;
-				self.songQueue.sort('score', 'descending');
-                ret["status"] = "upvoted";
-            }
+
+        if(api.upVote(target)){
+            ret["status"] = "upvoted";
         }
+
     }
     res.json(ret);
 });
@@ -111,29 +70,26 @@ app.post('/api/downvote', function(req, res){
     var target = req.body.nid;
     if(target !== null){
         var ret = {nid: target, "status":"unchanged"};
-        for(var i = 0; i < self.songQueue.length; ++i){
-            if(self.songQueue[i].nid === target){
-                self.songQueue[i].score--;
-                self.songQueue.sort('score', 'descending');
-                ret["status"] = "downvoted";
-            }
+        
+        if(api.downVote(target)){
+            ret["status"] = "upvoted";
         }
     }
     res.json(ret);
 });
 
 app.post('/api/playQ', function(req, res) {
-    self.player.play();
+    api.playQueue();
     res.send("PlayQ");
 });
 
 app.post('/api/pauseQ', function(req, res){
-    self.player.pause();
+    api.pauseQueue();
     res.send("PauseQ")
 });
 
 app.post('/api/skipQ', function(req, res){
-    self.player.next();
+    api.skipQueue();
     res.send("SkipQ");
 });
 

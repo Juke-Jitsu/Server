@@ -4,27 +4,13 @@
  * Module dependencies.
  */
 
-//var app = require('../app');
 var debug = require('debug')('Juke-Jitsu:server');
-var http = require('../app');
+var http;
 
 /**
- * Get port from environment and store in Express.
- */
-var port = normalizePort(process.env.PORT || '3000');
-
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-http.listen(port);
-http.on('error', onError);
-http.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- * @param {int} val Desired port number
- */
+   * Normalize a port into a number, string, or false.
+   * @param {int} val Desired port number
+   */
 function normalizePort(val) {
   var port = parseInt(val, 10);
 
@@ -41,46 +27,67 @@ function normalizePort(val) {
   return false;
 }
 
-
 /**
- * Event listener for HTTP server "error" event.
- * @param {Object} error The error thrown
+ * Get port from environment and store in Express.
  */
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+var port = normalizePort(process.env.PORT || '3000');
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+module.exports = {
+  startServer: startServer
+}
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
+function startServer() {
+
+  http = require('../app');
+
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  http.listen(port);
+  http.on('error', onError);
+  http.on('listening', onListening);
+
+  /**
+   * Event listener for HTTP server "error" event.
+   * @param {Object} error The error thrown
+   */
+  function onError(error) {
+    if (error.syscall !== 'listen') {
       throw error;
+    }
+
+    var bind = typeof port === 'string'
+      ? 'Pipe ' + port
+      : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
   }
+
+
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
+  function onListening() {
+    var addr = http.address();
+    var bind = typeof addr === 'string'
+      ? 'pipe ' + addr
+      : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+  }
+
+
+  console.log('Running on http://localhost:' + port);
+
 }
-
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-  var addr = http.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
-
-
-console.log('Running on http://localhost:'+port);
