@@ -18,7 +18,6 @@ var songQueue = new array();
 var nowPlaying = null;
 
 songQueue.on('change', function () {
-    console.log(player.bufferNewSong());
     if (player.bufferNewSong() && songQueue.length !== 0) {
         var song = songQueue.last();
         bufferSong(song.nid, function (song) {
@@ -27,8 +26,11 @@ songQueue.on('change', function () {
                 player.play();
             }
         });
-    } else {
-        console.log("Kaleb does not know what to do here");
+    } else if (songQueue.length !== 0){
+        console.log("Continue playing...");
+        player.play();
+    } else { 
+        console.log("Kaleb does not know what to do here, probably nothing");
     }
 });
 
@@ -58,6 +60,8 @@ var app = {
 
     addSongToQueue: function (song) {
         if (!songQueue.has(song) && song !== '{}') {
+            song.score = 0;
+            song.votes = {};
             songQueue.push(song);
         }
     },
@@ -101,11 +105,6 @@ var app = {
 
         for (var i = 0; i < songQueue.length; ++i) {
             if (songQueue[i].nid === vote.nid) {
-
-                // If this song hasn't been voted on..
-                if (!songQueue[i].votes) {
-                    songQueue[i].votes = {};
-                }
 
                 // set the users vote
                 songQueue[i].votes[vote.uid] = vote.vote;
