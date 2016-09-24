@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "The Best thing to happen to 2016. Ever.",
   "author": "Kaleb Pace & Eli Davis",
-  "main": "server/server.js",
+  "main": "api/main.js",
   "scripts": {
-    "start": "node start"
+    "start": "node -e \"require('./api/main.js').startServer();\""
   },
   "dependencies": {
     "array": "^0.4.3",

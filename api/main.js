@@ -1,4 +1,3 @@
-
 var gmusic = require('./gmusic.js');
 var array = require('array');
 var Player = require('./player.js');
