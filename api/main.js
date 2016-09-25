@@ -6,46 +6,41 @@ var bufferSong = require('./bufferedSong.js');
 var config = require('../config.json');
 var Rx = require('rx');
 
-var songHistory = new array();
-
-var player = new Player();
-
-/**
- * Entire history that's been played
- */
-var songHistory = [];
 
 var songQueue = new array();
-
+var player = new Player();
 var nowPlaying = null;
+
+/* Entire history that's been played */
+var songHistory = new array();
 
 var greetingMessage$ = new Rx.ReplaySubject(1);
 
 greetingMessage$.onNext(config.greetingMessage);
 
-songQueue.on('change', function () {
-    if (player.bufferNewSong() && songQueue.length !== 0) {
-        var song = songQueue.last();
-        bufferSong(song.nid, function (song) {
-            if (song.length !== 0) {
-                player.setNext(song);
-                player.play();
+
+function play(){
+    if(nowPlaying === null && songQueue.length != 0){
+        nowPlaying = songQueue.shift();
+        var song = nowPlaying;
+        bufferSong(song.nid, function(song){
+            if(song.length !== 0){
+                console.log('playing song');
+                player.play(song);
             }
         });
-    } else if (songQueue.length !== 0){
-        console.log("Continue playing...");
-        player.play();
-    } else {
-        console.log("Kaleb does not know what to do here, probably nothing");
     }
-});
+}
+songQueue.on('add', play);
 
 player.on('finish', function () {
     console.log("Song finished, playing next in Queue...");
     if (songQueue.length !== 0) {
-        songHistory.push(songQueue.shift());
+        songHistory.push(nowPlaying);
     }
+    nowPlaying = null;
     console.log(songHistory);
+    play();
 });
 
 var app = {

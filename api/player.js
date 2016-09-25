@@ -7,42 +7,23 @@ var events = require('events');
 Player = function(){
     var self = this;
 
-    self.streamQueue = [];
-    self.player = null;
-    self.playing = false;
-    self.loadSong = true;
+    self.play = function(song){
+        song.on('error', function(err){console.log("Welp. Thats raw.")})
+            .pipe(new lame.Decoder())
+            .on('format', function(f) {
+                var pcm_out = new Speaker();
+                var decoder = stream
+                    .Readable(f)
+                    .on('error', function(err){console.log(err);});
 
-    self.play = function(){
-        if(self.loadSong){
-            //var songStream = self.streamQueue[0];
-            var songStream = self.streamQueue.shift();
-
-            songStream
-                .on('error', function(err){console.log("Welp. Thats raw.")})
-                .pipe(new lame.Decoder())
-                .on('format', onPlaying);
-
-            self.playing = true;
-            self.loadSong = false;
-        }else{
-            self.resume();
-        }
-
-        function onPlaying(f) {
-            var pcm_out = new Speaker();
-            var decoder = stream
-                .Readable(f)
-                .on('error', function(err){console.log(err);});
-
-            self.player = {
-                'readableStream': this,
-                'Speaker': pcm_out
-            };
-            
-            self.player.readableStream.pipe(pcm_out)
-                .on('finish', self.next);
-        }
-
+                self.player = {
+                    'readableStream': this,
+                    'Speaker': pcm_out
+                };
+                
+                self.player.readableStream.pipe(pcm_out)
+                    .on('finish', self.finish);
+            });
     };
     
     self.pause = function(){
@@ -63,37 +44,15 @@ Player = function(){
             self.player.readableStream.pipe(self.player.Speaker);
             self.playing = true;
         } else {
-            console.log("Song is already playing...")
+            console.log("Song is already playing...");
         }
     };
-
-    self.next = function(){
-        //self.streamQueue.shift();
+    
+    self.finish = function() {
+        self.player.readableStream.unpipe();
         delete self.player.readableStream;
         delete self.player.Speaker;
-        self.playing = false;
-        self.loadSong = true;
         self.emit('finish');
-    }
-    
-    self.setNext = function(songstream){
-        console.log("Next Song Set");
-        self.streamQueue.push(songstream);
-    };
-    
-    self.bufferNewSong = function(){
-        //buffer only 3 songs
-        return (self.streamQueue.length < 3);
-    };
-    
-    self.clearPlayer = function() {
-        self.pause();
-        delete self.player.readableStream;
-        delete self.player.Speaker;
-        self.streamQueue = [];
-        self.player = null;
-        self.playing = false;
-        self.loadSong = true;
     };
 
 };
