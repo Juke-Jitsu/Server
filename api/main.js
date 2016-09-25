@@ -3,6 +3,8 @@ var array = require('array');
 var Player = require('./player.js');
 var www = require('../bin/www');
 var bufferSong = require('./bufferedSong.js');
+var config = require('../config.json');
+var Rx = require('rx');
 
 var songHistory = new array();
 
@@ -17,6 +19,10 @@ var songQueue = new array();
 
 var nowPlaying = null;
 
+var greetingMessage$ = new Rx.ReplaySubject(1);
+
+greetingMessage$.onNext(config.greetingMessage);
+
 songQueue.on('change', function () {
     if (player.bufferNewSong() && songQueue.length !== 0) {
         var song = songQueue.last();
@@ -29,7 +35,7 @@ songQueue.on('change', function () {
     } else if (songQueue.length !== 0){
         console.log("Continue playing...");
         player.play();
-    } else { 
+    } else {
         console.log("Kaleb does not know what to do here, probably nothing");
     }
 });
@@ -93,7 +99,7 @@ var app = {
 
     /**
      * Set's the user's vote for a specific song in the queue
-     * 
+     *
      * @returns boolean True if succesfully set, else false
      */
     setVote: function (vote) {
@@ -122,9 +128,16 @@ var app = {
             }
         }
 
+    },
+
+    getGreetingMessage$: function () {
+        return greetingMessage$;
+    },
+
+    setGreetingMessage: function (message) {
+        greetingMessage$.onNext(message);
     }
 
 }
 
 module.exports = app;
-
