@@ -14,12 +14,13 @@ Player = function(){
 
     self.play = function(){
         if(self.loadSong){
-            var songStream = self.streamQueue[0];
+            //var songStream = self.streamQueue[0];
+            var songStream = self.streamQueue.shift();
 
             songStream
                 .on('error', function(err){console.log("Welp. Thats raw.")})
                 .pipe(new lame.Decoder())
-                .on('format',onPlaying);
+                .on('format', onPlaying);
 
             self.playing = true;
             self.loadSong = false;
@@ -67,8 +68,7 @@ Player = function(){
     };
 
     self.next = function(){
-        self.pause();
-        self.streamQueue.shift();
+        //self.streamQueue.shift();
         delete self.player.readableStream;
         delete self.player.Speaker;
         self.playing = false;
