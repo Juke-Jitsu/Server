@@ -130,6 +130,10 @@ var app = {
 
     },
 
+    getPlayer: function (){
+        return player;
+    },
+
     getGreetingMessage$: function () {
         return greetingMessage$;
     },
