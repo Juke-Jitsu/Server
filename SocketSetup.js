@@ -5,13 +5,29 @@ var api = require("./api/main");
 
 module.exports = function (io) {
 
-    var lastMessage = ""
+    /**
+     * Keep up with the last set greeting message for newly connecting users
+     */
+    var lastGreetingMessage = "";
 
+    /**
+     * Keep up with the last set now playing song for newly connecting users
+     */
+    var lastNowPlaying = null;
+
+    // Keep users updated with the greeting message
     api.getGreetingMessage$().subscribe(function (message) {
-        lastMessage = message;
+        lastGreetingMessage = message;
         io.emit(ToClientMessages.GreetingMessage, message);
     });
 
+    // Keep users updated with what's now playing
+    api.getNowPlaying$().subscribe(function(nowPlaying) {
+        lastNowPlaying = nowPlaying;
+        io.emit(ToClientMessages.NowPlaying, nowPlaying);
+    });
+
+    // Whenever a song finished up send the users the new queue
     api.getPlayer().on('finish', function () {
         io.emit(ToClientMessages.EntireQ, api.getSongQueue());
     });
@@ -32,17 +48,19 @@ module.exports = function (io) {
 
         console.log("User Connected!");
 
-        // Send what's in the queue immediately
+        // Update newly connected users to what's going on
         socket.emit(ToClientMessages.EntireQ, api.getSongQueue());
-        socket.emit(ToClientMessages.GreetingMessage, lastMessage);
+        socket.emit(ToClientMessages.GreetingMessage, lastGreetingMessage);
+        socket.emit(ToClientMessages.NowPlaying, lastNowPlaying);
 
+        // Whenever a user adds something to the queue
         socket.on(ToServerMessages.AddToQ, function (songToAdd) {
             if (!api.getSongQueue().has(songToAdd) && songToAdd !== '{}') {
                 api.addSongToQueue(songToAdd);
             }
         });
 
-
+        // Whenever a user votes on a song
         socket.on(ToServerMessages.SetVote, function (vote) {
             api.setVote(vote);
             io.emit(ToClientMessages.EntireQ, api.getSongQueue());

@@ -15,22 +15,23 @@ var nowPlaying = null;
 var songHistory = new array();
 
 var greetingMessage$ = new Rx.ReplaySubject(1);
+var nowPlaying$ = new Rx.ReplaySubject(1);
 
 greetingMessage$.onNext(config.greetingMessage);
-
 
 function play(){
     if(nowPlaying === null && songQueue.length != 0){
         nowPlaying = songQueue.shift();
-        var song = nowPlaying;
-        bufferSong(song.nid, function(song){
-            if(song.length !== 0){
+        nowPlaying$.onNext(nowPlaying);
+        bufferSong(nowPlaying.nid, function(nowPlaying){
+            if(nowPlaying.length !== 0){
                 console.log('playing song');
-                player.play(song);
+                player.play(nowPlaying);
             }
         });
     }
 }
+
 songQueue.on('add', play);
 
 player.on('finish', function () {
@@ -39,6 +40,7 @@ player.on('finish', function () {
         songHistory.push(nowPlaying);
     }
     nowPlaying = null;
+    nowPlaying$.onNext(nowPlaying);
     console.log(songHistory);
     play();
 });
@@ -135,6 +137,10 @@ var app = {
 
     setGreetingMessage: function (message) {
         greetingMessage$.onNext(message);
+    },
+
+    getNowPlaying$: function() {
+        return nowPlaying$;
     }
 
 }
