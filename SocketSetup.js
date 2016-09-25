@@ -5,16 +5,26 @@ var api = require("./api/main");
 
 module.exports = function (io) {
 
+    var lastMessage = ""
+
+    api.getGreetingMessage$().subscribe(function(message){
+
+        lastMessage = message;
+        io.emit(ToClientMessages.GreetingMessage, message);
+
+    });
+
     io.on('connection', function (socket) {
 
         console.log("User Connected!");
 
         // Send what's in the queue immediately
         socket.emit(ToClientMessages.EntireQ, api.getSongQueue());
+        socket.emit(ToClientMessages.GreetingMessage, lastMessage);
 
         /**
          * Whenever the queue changes send the whole thing through.
-         * 
+         *
          * TODO: This can be optimized to only send what actually gets changed.
          *       Said solution would introduce more complexity in syncing up and
          *       making sure everyone sees the same thing so this sort of thing
@@ -36,7 +46,7 @@ module.exports = function (io) {
             api.setVote(vote);
             io.emit(ToClientMessages.EntireQ, api.getSongQueue());
         })
-  
+
     });
 
 };

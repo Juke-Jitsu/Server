@@ -20,6 +20,7 @@
     "path": "^0.12.7",
     "pcm-volume": "^1.0.0",
     "playmusic": "^2.1.1",
+    "rx": "^4.1.0",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.4.8",
     "speaker": "^0.3.0"
