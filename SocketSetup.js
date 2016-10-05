@@ -64,6 +64,15 @@ module.exports = function (io) {
         socket.on(ToServerMessages.SetVote, function (vote) {
             api.setVote(vote);
             io.emit(ToClientMessages.EntireQ, api.getSongQueue());
+        });
+
+        socket.on(ToServerMessages.SetUsername, function (name) {
+            api.setUsersName(name);
+        })
+
+        socket.on(ToServerMessages.SetAdminPassword, function (pw) {
+            console.log(pw);
+            io.emit(ToClientMessages.SetAdminPrivledgeLevel, api.setUsersPassword(pw.ui, pw.password));
         })
 
     });

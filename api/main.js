@@ -17,6 +17,8 @@ var songHistory = new array();
 var greetingMessage$ = new Rx.ReplaySubject(1);
 var nowPlaying$ = new Rx.ReplaySubject(1);
 
+var users = {};
+
 greetingMessage$.onNext(config.greetingMessage);
 
 function play(){
@@ -141,6 +143,24 @@ var app = {
 
     getNowPlaying$: function() {
         return nowPlaying$;
+    },
+
+    setUsersName: function(uid, name) {
+        if(!users[uid]){
+            users[uid] = {};
+        }
+        users[uid].name = name;
+    },
+
+    /**
+     * Returns true if password matches what's in the config, else false.
+     */
+    setUsersPassword: function(uid, password){
+        if(!users[uid]){
+            users[uid] = {};
+        }
+        users[uid].password = password;
+        return password === config.adminPassword;
     }
 
 }

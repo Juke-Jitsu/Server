@@ -12,5 +12,7 @@
     "email": "youremail@gmail.com",
     "password": "yourpassword",
     "androidId": "EXAMPLE16BITHEX",
-	"client": "P:/ath/To/Client/dist"
+	"client": "P:/ath/To/Client/dist",
+    "greetingMessage": "<b>Your</b> Greeting message",
+	"adminPassword": "password"
 }
