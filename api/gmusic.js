@@ -2,16 +2,25 @@ var PlayMusic = require('playmusic');
 var fs = require('fs');
 var util = require('util');
 var http = require('http');
+var Rx = require('rx');
 
 var pm = new PlayMusic();
 var config = require('../config.json');
 
+var loggedIn$ = new Rx.Subject();
+
+/*
+ * TODO: REVISE!!!! DOES THIS METHOD NEED TO EXHIST  WITH THE INIT ALREADY EXISTING
+ */
 pm.login({email: config.email, password: config.password, androidId: config.androidId}, function (err, resp) {
     if (err)
         console.error(err, resp);
 });
 
 pm.init(config, function (err) {
+
+    loggedIn$.onNext({});
+
     if (err)
         console.error(err);
 });
@@ -79,5 +88,6 @@ var getStreamUrl = function(songId, cb){
 
 module.exports = {
     "search": search,
-    "getStreamUrl": getStreamUrl
+    "getStreamUrl": getStreamUrl,
+    "loggedIn$": loggedIn$
 };

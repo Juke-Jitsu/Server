@@ -5,7 +5,8 @@
   "author": "Kaleb Pace & Eli Davis",
   "main": "api/main.js",
   "scripts": {
-    "start": "node -e \"require('./api/main.js').startServer();\""
+    "start": "node -e \"require('./api/main.js').startServer();\"",
+    "restore": "node -e \"require('./api/main.js').startServerWithShadow();\""
   },
   "dependencies": {
     "array": "^0.4.3",

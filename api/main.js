@@ -5,11 +5,14 @@ var www = require('../bin/www');
 var bufferSong = require('./bufferedSong.js');
 var config = require('../config.json');
 var Rx = require('rx');
-
+var ShadowCopy = require('./shadowcopy.js');
+var fs = require('fs');
 
 var songQueue = new array();
 var player = new Player();
 var nowPlaying = null;
+
+ShadowCopy(songQueue, gmusic);
 
 /* Entire history that's been played */
 var songHistory = new array();
@@ -22,7 +25,7 @@ var users = {};
 greetingMessage$.onNext(config.greetingMessage);
 
 function play(){
-    if(nowPlaying === null && songQueue.length != 0){
+    if(nowPlaying === null && songQueue.length !== 0){
         nowPlaying = songQueue.shift();
         nowPlaying$.onNext(nowPlaying);
         bufferSong(nowPlaying.nid, function(nowPlaying){
@@ -49,7 +52,17 @@ player.on('finish', function () {
 
 var app = {
 
+    startServerWithShadow: function() {
+        www.startServer();
+    }, 
+
     startServer: function () {
+
+        fs.unlink('./queue.shadow', function(err){
+            if (err && err.code == 'ENOENT')
+                return console.log ("Error starting server clean: ",err);
+        });
+
         www.startServer();
     },
 
