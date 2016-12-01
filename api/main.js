@@ -108,7 +108,7 @@ var app = {
     },
 
     skipQueue: function () {
-        player.next();
+        player.finish();
     },
 
     /**
