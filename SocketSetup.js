@@ -3,6 +3,7 @@ var ToClientMessages = SocketMessageType.ToClientMessages;
 var ToServerMessages = SocketMessageType.ToServerMessages;
 var api = require("./api/main");
 
+
 module.exports = function (io) {
 
     /**
@@ -27,9 +28,16 @@ module.exports = function (io) {
         io.emit(ToClientMessages.NowPlaying, nowPlaying);
     });
 
-    // Whenever a song finished up send the users the new queue
-    api.getPlayer().on('finish', function () {
-        io.emit(ToClientMessages.EntireQ, api.getSongQueue());
+    // Keep the clients up to date on whether or not the song is playing or paused
+    api.getPlayer().status$.subscribe(function(status){
+
+        io.emit(ToClientMessages.PlayerStatus, status);
+
+        // Update the queue whenever a song finishes
+        if (status === 'finish') {
+            io.emit(ToClientMessages.EntireQ, api.getSongQueue());
+        }
+
     });
 
     /**
@@ -71,7 +79,6 @@ module.exports = function (io) {
         })
 
         socket.on(ToServerMessages.SetAdminPassword, function (pw) {
-            console.log(pw);
             io.emit(ToClientMessages.SetAdminPrivledgeLevel, api.setUsersPassword(pw.ui, pw.password));
         })
 

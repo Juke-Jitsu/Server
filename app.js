@@ -21,7 +21,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(config.client));
 
 require('./SocketSetup')(io);
 
@@ -66,6 +65,8 @@ app.post('/api/skipQ', function (req, res) {
     api.skipQueue();
     res.send("SkipQ");
 });
+
+app.use(express.static(config.client));
 
 /* error handlers */
 // catch 404 and forward to error handler

@@ -15,4 +15,5 @@
 	"client": "P:/ath/To/Client/dist",
     "greetingMessage": "<b>Your</b> Greeting message",
 	"adminPassword": "password"
+    "post": "666" // optional
 }

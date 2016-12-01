@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+var config = require('../config.json');
 var debug = require('debug')('Juke-Jitsu:server');
 var http;
 
@@ -30,7 +31,7 @@ function normalizePort(val) {
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(config.port || process.env.PORT || '3000');
 
 module.exports = {
   startServer: startServer

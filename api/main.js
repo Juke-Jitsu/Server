@@ -30,7 +30,6 @@ function play(){
         nowPlaying$.onNext(nowPlaying);
         bufferSong(nowPlaying.nid, function(nowPlaying){
             if(nowPlaying.length !== 0){
-                console.log('playing song');
                 player.play(nowPlaying);
             }
         });
@@ -40,7 +39,6 @@ function play(){
 songQueue.on('add', play);
 
 player.on('finish', function () {
-    console.log("Song finished, playing next in Queue...");
     if (songQueue.length !== 0) {
         songHistory.push(nowPlaying);
     }
@@ -48,6 +46,10 @@ player.on('finish', function () {
     nowPlaying$.onNext(nowPlaying);
     console.log(songHistory);
     play();
+});
+
+player.status$.subscribe(function(status) {
+    console.log("Player status: ",status);
 });
 
 var app = {
@@ -98,7 +100,7 @@ var app = {
     },
 
     playQueue: function () {
-        player.play();
+        player.resume();
     },
 
     pauseQueue: function () {
